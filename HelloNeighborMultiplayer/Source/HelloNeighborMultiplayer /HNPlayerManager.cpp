@@ -28,11 +28,14 @@ void UHNPlayerManager::Start()
 
 void UHNPlayerManager::Stop()
 {
-    if (WorldInitializedHandle.IsValid())
-    {
-        FWorldDelegates::OnWorldInitializedActors.Remove(
-            WorldInitializedHandle
-        );
+   if (CurrentWorld)
+{
+    CurrentWorld->GetTimerManager().ClearTimer(
+        RetryTimerHandle
+    );
+}
+
+CurrentWorld = nullptr;
 
         WorldInitializedHandle.Reset();
     }
