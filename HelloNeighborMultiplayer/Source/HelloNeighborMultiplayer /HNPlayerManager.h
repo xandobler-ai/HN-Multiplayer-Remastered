@@ -15,7 +15,6 @@ class HELLONEIGHBORMULTIPLAYER_API UHNPlayerManager
 public:
 
     void Start();
-
     void Stop();
 
     bool FindLocalPlayer(UWorld* World);
@@ -29,8 +28,14 @@ private:
         const UWorld::InitializationValues IVS
     );
 
+    void RetryFindPlayer();
+
     UPROPERTY()
     TObjectPtr<UHNPlayerAdapter> LocalPlayerAdapter;
 
     FDelegateHandle WorldInitializedHandle;
+
+    FTimerHandle RetryTimerHandle;
+
+    UWorld* CurrentWorld = nullptr;
 };
