@@ -4,6 +4,9 @@
 #include "GameFramework/Character.h"
 #include "HNMultiplayerCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
+
 UCLASS()
 class HELLONEIGHBORMULTIPLAYER_API AHNMultiplayerCharacter
     : public ACharacter
@@ -22,4 +25,10 @@ protected:
 
     void MoveForward(float Value);
     void MoveRight(float Value);
+
+    UPROPERTY(VisibleAnywhere)
+    USpringArmComponent* CameraBoom;
+
+    UPROPERTY(VisibleAnywhere)
+    UCameraComponent* Camera;
 };
