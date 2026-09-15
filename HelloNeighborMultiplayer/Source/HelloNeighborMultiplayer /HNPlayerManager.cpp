@@ -1,3 +1,4 @@
+#include "TimerManager.h"
 #include "HNPlayerManager.h"
 #include "HNPlayerAdapter.h"
 
