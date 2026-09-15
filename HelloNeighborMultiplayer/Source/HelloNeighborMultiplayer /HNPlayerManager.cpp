@@ -62,58 +62,17 @@ void UHNPlayerManager::OnWorldInitialized(
         return;
     }
 
+    CurrentWorld = World;
+
     FindLocalPlayer(World);
-}
 
-bool UHNPlayerManager::FindLocalPlayer(UWorld* World)
-{
-    if (!World)
-    {
-        return false;
-    }
-
-    APlayerController* Controller =
-        World->GetFirstPlayerController();
-
-    if (!Controller)
-    {
-        return false;
-    }
-
-    APawn* Pawn = Controller->GetPawn();
-
-    if (!Pawn)
-    {
-        UE_LOG(
-            LogTemp,
-            Warning,
-            TEXT("[HNMP] No local player pawn yet")
-        );
-
-        return false;
-    }
-
-    LocalPlayerAdapter =
-        NewObject<UHNPlayerAdapter>(this);
-
-    if (!LocalPlayerAdapter)
-    {
-        return false;
-    }
-
-    const bool Attached =
-        LocalPlayerAdapter->AttachToPlayer(Pawn);
-
-    if (Attached)
-    {
-        UE_LOG(
-            LogTemp,
-            Log,
-            TEXT("[HNMP] Successfully attached to local player")
-        );
-    }
-
-    return Attached;
+    World->GetTimerManager().SetTimer(
+        RetryTimerHandle,
+        this,
+        &UHNPlayerManager::RetryFindPlayer,
+        0.5f,
+        true
+    );
 }
 
 void UHNPlayerManager::RetryFindPlayer()
