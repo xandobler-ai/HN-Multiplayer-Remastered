@@ -1,0 +1,33 @@
+name: Build Hello Neighbor Multiplayer DLL
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build DLL
+        shell: cmd
+        run: |
+          if not exist build mkdir build
+
+          cl /LD /EHsc /std:c++20 ^
+            /I"Source\HelloNeighborMultiplayer" ^
+            Source\HelloNeighborMultiplayer\HelloNeighborMultiplayer.cpp ^
+            /link /OUT:build\HelloNeighborMultiplayer.dll
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: HelloNeighborMultiplayer-DLL
+          path: build\HelloNeighborMultiplayer.dll
