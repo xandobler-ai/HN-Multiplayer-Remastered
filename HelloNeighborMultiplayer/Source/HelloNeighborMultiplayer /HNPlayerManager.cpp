@@ -116,6 +116,41 @@ bool UHNPlayerManager::FindLocalPlayer(UWorld* World)
     return Attached;
 }
 
+void UHNPlayerManager::RetryFindPlayer()
+{
+    if (!CurrentWorld)
+    {
+        return;
+    }
+
+    if (LocalPlayerAdapter &&
+        LocalPlayerAdapter->GetPlayer())
+    {
+        return;
+    }
+
+    if (FindLocalPlayer(CurrentWorld))
+    {
+        CurrentWorld->GetTimerManager().ClearTimer(
+            RetryTimerHandle
+        );
+
+        UE_LOG(
+            LogTemp,
+            Log,
+            TEXT("[HNMP] Player found!")
+        );
+
+        return;
+    }
+
+    UE_LOG(
+        LogTemp,
+        Verbose,
+        TEXT("[HNMP] Player not spawned yet, retrying...")
+    );
+}v
+
 UHNPlayerAdapter*
 UHNPlayerManager::GetLocalPlayerAdapter() const
 {
