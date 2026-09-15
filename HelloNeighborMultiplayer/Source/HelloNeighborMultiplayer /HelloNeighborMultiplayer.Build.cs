@@ -12,5 +12,6 @@ public class HelloNeighborMultiplayer : ModuleRules
     {
         "Core",
         "CoreUObject",
-        "Engine"
+        "Engine",
+        "NetCore"
     }
