@@ -5,7 +5,8 @@
 
 AHNMultiplayerGameMode::AHNMultiplayerGameMode()
 {
-    DefaultPawnClass = nullptr;
+    DefaultPawnClass =
+        AHNMultiplayerCharacter::StaticClass();
 }
 
 void AHNMultiplayerGameMode::PostLogin(
