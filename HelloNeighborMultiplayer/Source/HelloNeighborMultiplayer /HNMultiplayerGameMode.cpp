@@ -1,4 +1,5 @@
 #include "HNMultiplayerGameMode.h"
+#include "HNNetworkCharacter.h"
 
 #include "HNMultiplayerCharacter.h"
 #include "HNMultiplayerPlayer.h"
@@ -7,7 +8,7 @@
 AHNMultiplayerGameMode::AHNMultiplayerGameMode()
 {
     DefaultPawnClass =
-        AHNMultiplayerCharacter::StaticClass();
+        AHNNetworkCharacter::StaticClass();
 }
 
 void AHNMultiplayerGameMode::PostLogin(
@@ -24,7 +25,32 @@ void AHNMultiplayerGameMode::PostLogin(
     UE_LOG(
         LogTemp,
         Log,
-        TEXT("[HNMP] Player connected: %s"),
+        TEXT(
+            "[HNMP] Player connected: %s"
+        ),
         *NewPlayer->GetName()
     );
+
+    APawn* Pawn = NewPlayer->GetPawn();
+
+    if (!Pawn)
+    {
+        return;
+    }
+
+    AHNNetworkCharacter* Character =
+        Cast<AHNNetworkCharacter>(Pawn);
+
+    if (!Character)
+    {
+        return;
+    }
+
+    Character->NetworkPlayerID =
+        GetNumPlayers();
+
+    Character->NetworkPlayerName =
+        NewPlayer->PlayerState
+            ? NewPlayer->PlayerState->GetPlayerName()
+            : TEXT("Player");
 }
