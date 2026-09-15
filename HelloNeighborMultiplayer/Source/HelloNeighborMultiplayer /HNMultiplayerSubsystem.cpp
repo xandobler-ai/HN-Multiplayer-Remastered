@@ -1,21 +1,34 @@
 #include "HNMultiplayerSubsystem.h"
 
-#include "Engine/Engine.h"
 #include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
 
-bool UHNMultiplayerSubsystem::HostGame()
+bool UHNMultiplayerSubsystem::HostGame(
+    const FString& MapPath)
 {
     UWorld* World = GetWorld();
 
-    if (!World)
+    if (!World || MapPath.IsEmpty())
     {
         return false;
     }
 
-    return World->ServerTravel(
-        TEXT("/Game/Maps/MainMenu?listen")
+    const FString ListenMap =
+        MapPath + TEXT("?listen");
+
+    World->ServerTravel(ListenMap);
+
+    bHosting = true;
+    bConnected = true;
+
+    UE_LOG(
+        LogTemp,
+        Log,
+        TEXT("[HNMP] Hosting on %s"),
+        *ListenMap
     );
+
+    return true;
 }
 
 bool UHNMultiplayerSubsystem::JoinGame(
@@ -23,25 +36,32 @@ bool UHNMultiplayerSubsystem::JoinGame(
 {
     UWorld* World = GetWorld();
 
-    if (!World)
+    if (!World || Address.IsEmpty())
     {
         return false;
     }
 
-    APlayerController* PlayerController =
-        UGameplayStatics::GetPlayerController(
-            World,
-            0
-        );
+    APlayerController* Controller =
+        World->GetFirstPlayerController();
 
-    if (!PlayerController)
+    if (!Controller)
     {
         return false;
     }
 
-    PlayerController->ClientTravel(
+    Controller->ClientTravel(
         Address,
         TRAVEL_Absolute
+    );
+
+    bHosting = false;
+    bConnected = true;
+
+    UE_LOG(
+        LogTemp,
+        Log,
+        TEXT("[HNMP] Joining %s"),
+        *Address
     );
 
     return true;
@@ -56,22 +76,33 @@ void UHNMultiplayerSubsystem::LeaveGame()
         return;
     }
 
-    APlayerController* PlayerController =
-        UGameplayStatics::GetPlayerController(
-            World,
-            0
-        );
+    APlayerController* Controller =
+        World->GetFirstPlayerController();
 
-    if (PlayerController)
+    if (Controller)
     {
-        PlayerController->ClientTravel(
+        Controller->ClientTravel(
             TEXT("/Game/Maps/MainMenu"),
             TRAVEL_Absolute
         );
     }
+
+    bHosting = false;
+    bConnected = false;
+
+    UE_LOG(
+        LogTemp,
+        Log,
+        TEXT("[HNMP] Left multiplayer session")
+    );
 }
 
-bool UHNMultiplayerSubsystem::OpenSession()
+bool UHNMultiplayerSubsystem::IsHosting() const
 {
-    return true;
+    return bHosting;
+}
+
+bool UHNMultiplayerSubsystem::IsConnected() const
+{
+    return bConnected;
 }
