@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Download repository
+      - name: Download repository ZIP
         shell: powershell
         run: |
           Invoke-WebRequest `
@@ -16,20 +16,21 @@ jobs:
             -OutFile repo.zip
 
       - name: Extract repository
+        shell: cmd
+        run: |
+          mkdir repo
+          7z x repo.zip -orepo -y
+
+      - name: Find source files
         shell: powershell
         run: |
-          Expand-Archive repo.zip -DestinationPath repo
-          $root = Get-ChildItem repo -Directory | Select-Object -First 1
-          "REPO_ROOT=$($root.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Prepare source
-        shell: powershell
-        run: |
-          Write-Host "Repository root: $env:REPO_ROOT"
-
-          Get-ChildItem `
-            "$env:REPO_ROOT\HelloNeighborMultiplayer\Source" `
-            -Recurse
+          Get-ChildItem repo -Recurse -File |
+            Where-Object {
+              $_.Name -eq "HelloNeighborMultiplayer.cpp"
+            } |
+            ForEach-Object {
+              Write-Host $_.FullName
+            }
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -41,13 +42,15 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path build | Out-Null
 
-          $source = Get-ChildItem `
-            "$env:REPO_ROOT\HelloNeighborMultiplayer\Source" `
-            -Filter "HelloNeighborMultiplayer.cpp" `
-            -Recurse |
+          $source = Get-ChildItem repo -Recurse -Filter "HelloNeighborMultiplayer.cpp" |
             Select-Object -First 1
 
-          Write-Host "Found source: $($source.FullName)"
+          if (-not $source) {
+            Write-Error "HelloNeighborMultiplayer.cpp was not found!"
+            exit 1
+          }
+
+          Write-Host "Building: $($source.FullName)"
 
           cl.exe /LD /EHsc /std:c++20 `
             "$($source.FullName)" `
