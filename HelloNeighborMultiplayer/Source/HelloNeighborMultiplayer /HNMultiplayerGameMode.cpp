@@ -1,5 +1,6 @@
 #include "HNMultiplayerGameMode.h"
 
+#include "HNMultiplayerCharacter.h"
 #include "HNMultiplayerPlayer.h"
 #include "GameFramework/PlayerController.h"
 
