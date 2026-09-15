@@ -13,7 +13,7 @@ class HELLONEIGHBORMULTIPLAYER_API UHNMultiplayerSubsystem
 public:
 
     UFUNCTION(BlueprintCallable)
-    bool HostGame();
+    bool HostGame(const FString& MapPath);
 
     UFUNCTION(BlueprintCallable)
     bool JoinGame(const FString& Address);
@@ -21,7 +21,14 @@ public:
     UFUNCTION(BlueprintCallable)
     void LeaveGame();
 
+    UFUNCTION(BlueprintCallable)
+    bool IsHosting() const;
+
+    UFUNCTION(BlueprintCallable)
+    bool IsConnected() const;
+
 private:
 
-    bool OpenSession();
+    bool bHosting = false;
+    bool bConnected = false;
 };
