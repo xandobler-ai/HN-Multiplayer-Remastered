@@ -1,16 +1,39 @@
 #include "HNMultiplayerCharacter.h"
 
-#include "GameFramework/Controller.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Controller.h"
 #include "Components/InputComponent.h"
 
 AHNMultiplayerCharacter::AHNMultiplayerCharacter()
 {
     bReplicates = true;
-
     SetReplicateMovement(true);
 
     GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+
+    CameraBoom = CreateDefaultSubobject<USpringArmComponent>(
+        TEXT("CameraBoom")
+    );
+
+    CameraBoom->SetupAttachment(
+        GetRootComponent()
+    );
+
+    CameraBoom->TargetArmLength = 300.0f;
+    CameraBoom->bUsePawnControlRotation = true;
+
+    Camera = CreateDefaultSubobject<UCameraComponent>(
+        TEXT("Camera")
+    );
+
+    Camera->SetupAttachment(
+        CameraBoom,
+        USpringArmComponent::SocketName
+    );
+
+    Camera->bUsePawnControlRotation = false;
 }
 
 void AHNMultiplayerCharacter::SetupPlayerInputComponent(
