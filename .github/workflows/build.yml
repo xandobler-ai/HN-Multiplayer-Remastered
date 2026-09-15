@@ -8,8 +8,28 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Download repository
+        shell: powershell
+        run: |
+          Invoke-WebRequest `
+            -Uri "https://github.com/${{ github.repository }}/archive/${{ github.sha }}.zip" `
+            -OutFile repo.zip
+
+      - name: Extract repository
+        shell: powershell
+        run: |
+          Expand-Archive repo.zip -DestinationPath repo
+          $root = Get-ChildItem repo -Directory | Select-Object -First 1
+          "REPO_ROOT=$($root.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Prepare source
+        shell: powershell
+        run: |
+          Write-Host "Repository root: $env:REPO_ROOT"
+
+          Get-ChildItem `
+            "$env:REPO_ROOT\HelloNeighborMultiplayer\Source" `
+            -Recurse
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -17,17 +37,24 @@ jobs:
           arch: x64
 
       - name: Build DLL
-        shell: cmd
+        shell: powershell
         run: |
-          if not exist build mkdir build
+          New-Item -ItemType Directory -Force -Path build | Out-Null
 
-          cl /LD /EHsc /std:c++20 ^
-            /I"Source\HelloNeighborMultiplayer" ^
-            Source\HelloNeighborMultiplayer\HelloNeighborMultiplayer.cpp ^
-            /link /OUT:build\HelloNeighborMultiplayer.dll
+          $source = Get-ChildItem `
+            "$env:REPO_ROOT\HelloNeighborMultiplayer\Source" `
+            -Filter "HelloNeighborMultiplayer.cpp" `
+            -Recurse |
+            Select-Object -First 1
+
+          Write-Host "Found source: $($source.FullName)"
+
+          cl.exe /LD /EHsc /std:c++20 `
+            "$($source.FullName)" `
+            /link /OUT:"$PWD\build\HelloNeighborMultiplayer.dll"
 
       - name: Upload DLL
         uses: actions/upload-artifact@v4
         with:
           name: HelloNeighborMultiplayer-DLL
-          path: build\HelloNeighborMultiplayer.dll
+          path: build/HelloNeighborMultiplayer.dll
