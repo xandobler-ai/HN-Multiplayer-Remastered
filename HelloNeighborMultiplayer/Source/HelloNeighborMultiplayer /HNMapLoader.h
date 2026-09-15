@@ -15,6 +15,8 @@ public:
     bool LoadMap(UWorld* World, const FString& MapName);
 
     bool LoadAct1(UWorld* World);
+    bool LoadAct1Basement(UWorld* World);
+    bool LoadAct1BasementLocation(UWorld* World);
     bool LoadAct1Day(UWorld* World);
     bool LoadPlayerHouse(UWorld* World);
     bool LoadNeighborHouse(UWorld* World);
