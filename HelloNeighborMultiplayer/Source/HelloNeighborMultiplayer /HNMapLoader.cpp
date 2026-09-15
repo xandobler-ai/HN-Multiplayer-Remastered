@@ -45,6 +45,21 @@ bool UHNMapLoader::LoadAct1(UWorld* World)
         TEXT("/Game/Maps/Act1/Act1_Main")
     );
 }
+bool UHNMapLoader::LoadAct1Basement(UWorld* World)
+{
+    return TravelToMap(
+        World,
+        TEXT("/Game/Maps/Act1_Basement/Act1_Basement_Main")
+    );
+}
+
+bool UHNMapLoader::LoadAct1BasementLocation(UWorld* World)
+{
+    return TravelToMap(
+        World,
+        TEXT("/Game/Maps/Act1_Basement/Act1_Basement_Location")
+    );
+}
 
 bool UHNMapLoader::LoadAct1Day(UWorld* World)
 {
