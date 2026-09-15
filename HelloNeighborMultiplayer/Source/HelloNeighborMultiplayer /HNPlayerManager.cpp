@@ -2,7 +2,67 @@
 #include "HNPlayerAdapter.h"
 
 #include "Engine/World.h"
+#include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
+
+void UHNPlayerManager::Start()
+{
+    if (WorldInitializedHandle.IsValid())
+    {
+        return;
+    }
+
+    WorldInitializedHandle =
+        FWorldDelegates::OnWorldInitializedActors.AddUObject(
+            this,
+            &UHNPlayerManager::OnWorldInitialized
+        );
+
+    UE_LOG(
+        LogTemp,
+        Log,
+        TEXT("[HNMP] Player manager started")
+    );
+}
+
+void UHNPlayerManager::Stop()
+{
+    if (WorldInitializedHandle.IsValid())
+    {
+        FWorldDelegates::OnWorldInitializedActors.Remove(
+            WorldInitializedHandle
+        );
+
+        WorldInitializedHandle.Reset();
+    }
+
+    LocalPlayerAdapter = nullptr;
+
+    UE_LOG(
+        LogTemp,
+        Log,
+        TEXT("[HNMP] Player manager stopped")
+    );
+}
+
+void UHNPlayerManager::OnWorldInitialized(
+    UWorld* World,
+    const UWorld::InitializationValues IVS
+)
+{
+    if (!World)
+    {
+        return;
+    }
+
+    if (World->WorldType != EWorldType::Game &&
+        World->WorldType != EWorldType::PIE)
+    {
+        return;
+    }
+
+    FindLocalPlayer(World);
+}
 
 bool UHNPlayerManager::FindLocalPlayer(UWorld* World)
 {
@@ -23,6 +83,12 @@ bool UHNPlayerManager::FindLocalPlayer(UWorld* World)
 
     if (!Pawn)
     {
+        UE_LOG(
+            LogTemp,
+            Warning,
+            TEXT("[HNMP] No local player pawn yet")
+        );
+
         return false;
     }
 
@@ -34,7 +100,19 @@ bool UHNPlayerManager::FindLocalPlayer(UWorld* World)
         return false;
     }
 
-    return LocalPlayerAdapter->AttachToPlayer(Pawn);
+    const bool Attached =
+        LocalPlayerAdapter->AttachToPlayer(Pawn);
+
+    if (Attached)
+    {
+        UE_LOG(
+            LogTemp,
+            Log,
+            TEXT("[HNMP] Successfully attached to local player")
+        );
+    }
+
+    return Attached;
 }
 
 UHNPlayerAdapter*
