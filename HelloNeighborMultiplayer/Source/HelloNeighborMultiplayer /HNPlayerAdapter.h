@@ -18,6 +18,9 @@ public:
 
     void UpdateNetworkState();
 
+FVector GetLocation() const;
+FRotator GetRotation() const;
+
 private:
 
     UPROPERTY()
