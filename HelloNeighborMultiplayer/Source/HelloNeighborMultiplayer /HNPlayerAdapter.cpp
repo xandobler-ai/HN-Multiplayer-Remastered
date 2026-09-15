@@ -41,9 +41,28 @@ void UHNPlayerAdapter::UpdateNetworkState()
         LogTemp,
         VeryVerbose,
         TEXT(
-            "[HNMP] Player position: %s | Rotation: %s"
+            "[HNMP] Position: %s | Rotation: %s"
         ),
         *Location.ToString(),
         *Rotation.ToString()
     );
+}
+FVector UHNPlayerAdapter::GetLocation() const
+{
+    if (!IsValid(PlayerActor))
+    {
+        return FVector::ZeroVector;
+    }
+
+    return PlayerActor->GetActorLocation();
+}
+
+FRotator UHNPlayerAdapter::GetRotation() const
+{
+    if (!IsValid(PlayerActor))
+    {
+        return FRotator::ZeroRotator;
+    }
+
+    return PlayerActor->GetActorRotation();
 }
